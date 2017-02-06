@@ -1,0 +1,31 @@
+{
+  "name": "become-bot-api",
+  "version": "0.1.0",
+  "description": "become-bot-api",
+  "keywords": [
+    "wit",
+    "wit.ai",
+    "bot",
+    "botengine",
+    "bots",
+    "Facebook",
+    "Messenger"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": "",
+  "author": "rowellpica <rowellpica@gmail.com>",
+  "dependencies": {
+    "async": "^2.0.0-rc.5",
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
+    "node-fetch": "^1.5.1",
+    "node-uuid": "^1.4.7",
+    "node-wit": "^3.3.0",
+    "request": "^2.71.0",
+    "underscore": "^1.8.3"
+  }
+}
