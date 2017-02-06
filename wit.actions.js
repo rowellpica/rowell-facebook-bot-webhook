@@ -20,7 +20,7 @@ module.exports = {
         }
     },
     merge(recipientId, context, entities, message, cb) {
-        console.log("merge:", context, entities);
+        console.log("merge: merging context...");
         async.forEachOf(entities, (entity, key, cb) => {
             const value = firstEntityValue(entity);
             if (value != null && (context[key] == null || context[key] != value)) {
@@ -74,7 +74,9 @@ module.exports = {
     },
     searchOffer(recipientId, context, cb) {
         var query = encodeURIComponent(context.search_query);
-        console.log("searchOffer: search for offers with", query);
+        console.log("searchOffer: search for offers with this query:", query);
+        rememberQuery(context, query);
+        delete context.search_query;
         var apiRequest = "http://partner.become.co.jp/json?partner=become&filter=All&image_size=200&num=5&start=1&q="+query
         request.get(apiRequest, (err, resp, body) => {
             if (err || resp.statusCode != 200) { console.error('Oops! An error occurred while using become partner api', query); }
@@ -97,13 +99,17 @@ module.exports = {
                     offers.push(offer);
                 });
                 FB.sendStructuredMessage(recipientId, offers, (err, data) => {
-                if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-                    cb();
+                    if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
+                    var message = "Here are the results. Click on the [View Offer] to see the information about the products. You can also do another search. :)";
+                    FB.sendText(recipientId, message, (err, data) => {
+                        if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
+                        cb();
+                    });
                 });
             } else {
                 var message = "Sorry but I can't find any offer for " + context.search_query;
                 FB.sendText(recipientId, message, (err, data) => {
-                if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
+                    if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
                     cb();
                 });
             }
@@ -125,4 +131,10 @@ const firstEntityValue = (entity) => {
         return null;
     }
     return typeof val === 'object' ? val.value : val;
+};
+const rememberQuery = (context, query) => {
+    if(typeof context["queries"] == "undefined") {
+        context["queries"] = [];
+    }
+    context["queries"].push(query);
 };
