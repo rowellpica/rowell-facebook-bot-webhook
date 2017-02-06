@@ -1,7 +1,7 @@
 {
-  "name": "become-bot-api",
+  "name": "rowell-facebook-bot-webhook",
   "version": "0.1.0",
-  "description": "become-bot-api",
+  "description": "rowell-facebook-bot-webhook",
   "keywords": [
     "wit",
     "wit.ai",
@@ -16,7 +16,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
   },
-  "repository": "",
+  "repository": "https://github.com/rowellpica/rowell-facebook-bot-webhook",
   "author": "rowellpica <rowellpica@gmail.com>",
   "dependencies": {
     "async": "^2.0.0-rc.5",
