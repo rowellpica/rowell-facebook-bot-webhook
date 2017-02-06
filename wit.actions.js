@@ -20,7 +20,7 @@ module.exports = {
         }
     },
     merge(recipientId, context, entities, message, cb) {
-        console.log("merge: merging context...");
+        console.log("merge: merging context...", recipientId);
         async.forEachOf(entities, (entity, key, cb) => {
             const value = firstEntityValue(entity);
             if (value != null && (context[key] == null || context[key] != value)) {
@@ -74,7 +74,7 @@ module.exports = {
     },
     searchOffer(recipientId, context, cb) {
         var query = encodeURIComponent(context.search_query);
-        console.log("searchOffer: search for offers with this query:", query);
+        console.log("searchOffer: search for offers with this query:", query, recipientId);
         rememberQuery(context, query);
         delete context.search_query;
         var apiRequest = "http://partner.become.co.jp/json?partner=become&filter=All&image_size=200&num=5&start=1&q="+query
@@ -137,4 +137,5 @@ const rememberQuery = (context, query) => {
         context["queries"] = [];
     }
     context["queries"].push(query);
+    console.log("rememberQuery", context.queries);
 };
