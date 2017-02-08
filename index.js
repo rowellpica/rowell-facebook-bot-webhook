@@ -31,14 +31,14 @@ const getFirstMessagingEntry = (body) => {
 };
 
 var sessions = {};
-const findOrCreateSession = (sessions, fbid, cb) => {
+const findOrCreateSession = (fbid, cb) => {
 
     if (!sessions[fbid]) {
         console.log("New Session for:", fbid);
         sessions[fbid] = {context: {}};
     }
 
-    cb(sessions, fbid);
+    cb(fbid);
 };
 
 const actions = require('./wit.actions');
@@ -67,7 +67,7 @@ app.post('/', (req, res) => {
     if (messaging && messaging.recipient.id === config.FB_PAGE_ID) {
         const sender = messaging.sender.id;
 
-        findOrCreateSession(sessions, sender, (sessions, sessionId) => {
+        findOrCreateSession(sender, (sessionId) => {
             async.series(
                 [
                     function (callback) {
@@ -120,7 +120,7 @@ app.post('/', (req, res) => {
                     },
                 ],
                 function (err, results) {
-                    console.log("Session context", sessions[sessionId].context);
+                    console.log("Session context", sessionId, sessions[sessionId].context, results);
                 }
             );
             }

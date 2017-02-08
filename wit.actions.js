@@ -12,15 +12,15 @@ module.exports = {
                 if (err) {
                     console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err);
                 }
-                cb();
+                cb(context);
             });
         } else {
             console.log('Oops! Couldn\'t find user for session:', sessionId);
-            cb();
+            cb(context);
         }
     },
     merge(recipientId, context, entities, message, cb) {
-        console.log("merge: merging context...", recipientId);
+        console.log("merge: merging context...", recipientId, context);
         async.forEachOf(entities, (entity, key, cb) => {
             const value = firstEntityValue(entity);
             if (value != null && (context[key] == null || context[key] != value)) {
@@ -46,18 +46,18 @@ module.exports = {
         var message = "Hi! Konichiwa!";
         FB.sendText(recipientId, message, (err, data) => {
             if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-            cb();
+            cb(context);
         });
     },
     askWhatTodo(recipientId, context, cb) {
         var message = "What can I do for you today?",
             replies = [
-                { "content_type":"text","title":"Search for","payload":"PAYLOAD_FOR_SEARCH" },
+                { "content_type":"text","title":"Search for an item","payload":"PAYLOAD_FOR_SEARCH" },
                 { "content_type":"text","title":"Send me today's deal","payload":"PAYLOAD_FOR_DEALS" }
             ];
         FB.sendTextWithReplies(recipientId, message, replies, (err, data) => {
             if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-            cb();
+            cb(context);
         });
     },
     askWhatProductToSearch(recipientId, context, cb) {
@@ -70,13 +70,21 @@ module.exports = {
         FB.sendTextWithReplies(recipientId, message, replies, (err, data) => {
             if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
             context.intent = "Search";
-            cb();
+            cb(context);
         });
     },
     searchOffer(recipientId, context, cb) {
+        var rememberQuery = function (query) {
+            if(typeof context["queries"] == "undefined") {
+                context["queries"] = [];
+            }
+            context["queries"].push(query);
+            console.log("rememberQuery", context.queries);
+        };
         var query = encodeURIComponent(context.search_query);
         console.log("searchOffer: search for offers with this query:", query, recipientId);
-        rememberQuery(context, query);
+        rememberQuery(query);
+        console.log("searchOffer context:", context);
         delete context.search_query;
         var apiRequest = "http://partner.become.co.jp/json?partner=become&filter=All&image_size=200&num=5&start=1&q="+query
         request.get(apiRequest, (err, resp, body) => {
@@ -104,21 +112,21 @@ module.exports = {
                     var message = "Here are the results. Click on the [View Offer] to see the information about the products. You can also do another search. :)";
                     FB.sendText(recipientId, message, (err, data) => {
                         if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-                        cb();
+                        cb(context);
                     });
                 });
             } else {
                 var message = "Sorry but I can't find any offer for " + context.search_query;
                 FB.sendText(recipientId, message, (err, data) => {
                     if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-                    cb();
+                    cb(context);
                 });
             }
         });
     },
     getDeals(recipientId, context, cb) {
         console.log("getDeals", recipientId, context);
-        cb();
+        cb(context);
     }
 };
 
@@ -132,11 +140,4 @@ const firstEntityValue = (entity) => {
         return null;
     }
     return typeof val === 'object' ? val.value : val;
-};
-const rememberQuery = (context, query) => {
-    if(typeof context["queries"] == "undefined") {
-        context["queries"] = [];
-    }
-    context["queries"].push(query);
-    console.log("rememberQuery", context.queries);
 };
