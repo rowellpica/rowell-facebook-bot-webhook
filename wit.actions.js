@@ -52,8 +52,8 @@ module.exports = {
     askWhatTodo(recipientId, context, cb) {
         var message = "What can I do for you today?",
             replies = [
-                { "content_type":"text","title":"Search for a product.","payload":"PAYLOAD_FOR_SEARCH" },
-                { "content_type":"text","title":"Send me today's deal.","payload":"PAYLOAD_FOR_DEALS" }
+                { "content_type":"text","title":"Search for","payload":"PAYLOAD_FOR_SEARCH" },
+                { "content_type":"text","title":"Send me today's deal","payload":"PAYLOAD_FOR_DEALS" }
             ];
         FB.sendTextWithReplies(recipientId, message, replies, (err, data) => {
             if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
@@ -69,6 +69,7 @@ module.exports = {
             ];
         FB.sendTextWithReplies(recipientId, message, replies, (err, data) => {
             if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
+            context.intent = "Search";
             cb();
         });
     },
