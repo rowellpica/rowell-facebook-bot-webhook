@@ -12,7 +12,7 @@ const FBRequest = request.defaults({
 });
 
 const TEMPLATE_GENERIC = "generic";
-const PAYLOAD_TEST = "PAYLOAD_TEST";
+const TED_GET_STARTED_PAYLOAD = "TED_GET_STARTED_PAYLOAD";
 
 module.exports = {
 
@@ -20,11 +20,12 @@ module.exports = {
         console.log("Received payload for", recipientId, payload, context);
 
         switch (payload) {
-            case PAYLOAD_TEST:
-                this.sendText(recipientId, "Test", () => {
-                    context["test"] = "test";
-                    cb(context);
-                });
+            case TED_GET_STARTED_PAYLOAD:
+                // this.sendText(recipientId, "Hi there! My name is Ted and right now, I'm still just a simple robot.", () => {
+                //     this.sendText(recipientId, "I will try to send you motivational messages as often as I can.", () => {
+                //         cb(context);
+                //     });
+                // });
                 break;
         }
     },

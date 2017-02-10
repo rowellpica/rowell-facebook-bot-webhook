@@ -12,15 +12,15 @@ module.exports = {
                 if (err) {
                     console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err);
                 }
-                cb(context);
+                cb();
             });
         } else {
             console.log('Oops! Couldn\'t find user for session:', sessionId);
-            cb(context);
+            cb();
         }
     },
     merge(recipientId, context, entities, message, cb) {
-        console.log("merge: merging context...", recipientId, context);
+        console.log("merge", JSON.stringify(context), JSON.stringify(entities));
         async.forEachOf(entities, (entity, key, cb) => {
             const value = firstEntityValue(entity);
             if (value != null && (context[key] == null || context[key] != value)) {
@@ -40,93 +40,6 @@ module.exports = {
     },
     error(recipientId, context, error) {
         console.log(error.message);
-    },
-    /**** Add your own functions HERE ******/
-    doWelcome(recipientId, context, cb) {
-        var message = "Hi! Konichiwa!";
-        FB.sendText(recipientId, message, (err, data) => {
-            if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-            cb(context);
-        });
-    },
-    askWhatTodo(recipientId, context, cb) {
-        var message = "What can I do for you today?",
-            replies = [
-                { "content_type":"text","title":"Search for an item","payload":"PAYLOAD_FOR_SEARCH" },
-                { "content_type":"text","title":"Send me today's deal","payload":"PAYLOAD_FOR_DEALS" }
-            ];
-        FB.sendTextWithReplies(recipientId, message, replies, (err, data) => {
-            if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-            cb(context);
-        });
-    },
-    askWhatProductToSearch(recipientId, context, cb) {
-        var message = "So you want to search a product. What product are you searching?",
-            replies = [
-                { "content_type":"text","title":"Nike Shoes","payload":"PAYLOAD_FOR_SEARCH_NIKE_SHOES" },
-                { "content_type":"text","title":"Bags","payload":"PAYLOAD_FOR_SEARCH_BAGS" },
-                { "content_type":"text","title":"White Dress","payload":"PAYLOAD_FOR_SEARCH_WHITE_DRESS" }
-            ];
-        FB.sendTextWithReplies(recipientId, message, replies, (err, data) => {
-            if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-            context.intent = "Search";
-            cb(context);
-        });
-    },
-    searchOffer(recipientId, context, cb) {
-        var rememberQuery = function (query) {
-            if(typeof context["queries"] == "undefined") {
-                context["queries"] = [];
-            }
-            context["queries"].push(query);
-            console.log("rememberQuery", context.queries);
-        };
-        var query = encodeURIComponent(context.search_query);
-        console.log("searchOffer: search for offers with this query:", query, recipientId);
-        rememberQuery(query);
-        console.log("searchOffer context:", context);
-        delete context.search_query;
-        var apiRequest = "http://partner.become.co.jp/json?partner=become&filter=All&image_size=200&num=5&start=1&q="+query
-        request.get(apiRequest, (err, resp, body) => {
-            if (err || resp.statusCode != 200) { console.error('Oops! An error occurred while using become partner api', query); }
-            var respBody = body.substr(10),
-                respBody = respBody.substr(0, respBody.length - 1),
-                apiResponse = JSON.parse(respBody),
-                results = apiResponse.service_response.service_response.results.result;
-            if (results.length > 0) {
-                var offers = []
-                _.each(results, function(r) {
-                    var offer = {
-                      "title": r.title,
-                      "subtitle": "¥"+r.max_price,
-                      "image_url": r.image_url,
-                      "buttons": [
-                        {"type": 'web_url', "title": 'View Offer', "url": r.merchant.url},
-                        {"type": 'web_url', "title": 'Search More', "url": "www.become.co.jp/"+context.search_query+".html"}
-                      ]
-                    };
-                    offers.push(offer);
-                });
-                FB.sendStructuredMessage(recipientId, offers, (err, data) => {
-                    if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-                    var message = "Here are the results. Click on the [View Offer] to see the information about the products. You can also do another search. :)";
-                    FB.sendText(recipientId, message, (err, data) => {
-                        if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-                        cb(context);
-                    });
-                });
-            } else {
-                var message = "Sorry but I can't find any offer for " + context.search_query;
-                FB.sendText(recipientId, message, (err, data) => {
-                    if (err) { console.error('Oops! An error occurred while forwarding the response to', recipientId, ':', err); }
-                    cb(context);
-                });
-            }
-        });
-    },
-    getDeals(recipientId, context, cb) {
-        console.log("getDeals", recipientId, context);
-        cb(context);
     }
 };
 

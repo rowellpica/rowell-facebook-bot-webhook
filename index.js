@@ -63,7 +63,7 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
     const messaging = getFirstMessagingEntry(req.body);
-    
+    console.log("request", JSON.stringify(req.body));
     if (messaging && messaging.recipient.id === config.FB_PAGE_ID) {
         const sender = messaging.sender.id;
 
@@ -95,9 +95,7 @@ app.post('/', (req, res) => {
                                     'Sorry I can only process text messages for now.'
                                 );
                                 callback(null, {});
-
                             } else {
-
                                 console.log("Run wit with context", sessions[sessionId].context);
                                 wit.runActions(
                                     sessionId, // the user's current session
